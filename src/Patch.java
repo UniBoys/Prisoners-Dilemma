@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.Arrays;
+import java.util.List;
 
 /**
  * INCOMPLETE
@@ -17,28 +17,39 @@ import java.util.Arrays;
  */
 
 class Patch extends JPanel implements MouseListener {
-
-    private static final long serialVersionUID = 3868284208279483200L;
+    // The x coordinate of this patch in the playing field.
+    private final int x;
+    // The y coordinate of this patch in the playing field.
+    private final int y;
+    // If this patch is cooperating or not.
     private boolean cooperating;
+    // If this patch has changed in the last cycle.
     private boolean hasChanged;
+    // The score of this patch.
     private double score;
-    private Patch[] neighbours;
+    // The neighbours on the playing field for this patch.
+    private List<Patch> neighbours;
 
-    Patch(boolean cooperating) {
-        this(cooperating, false);
+    /**
+     * This constructor
+     */
+    Patch(int x, int y, boolean cooperating) {
+        this(x, y, cooperating, false);
     }
 
-    Patch(boolean cooperating, boolean hasChanged) {
+    Patch(int x, int y, boolean cooperating, boolean hasChanged) {
+        this.x = x;
+        this.y = y;
         this.cooperating = cooperating;
         this.hasChanged = hasChanged;
         this.score = 0;
     }
 
-    Patch[] getNeighbours() {
+    List<Patch> getNeighbours() {
         return this.neighbours;
     }
 
-    void setNeighbours(Patch[] neighbours) {
+    void setNeighbours(List<Patch> neighbours) {
         this.neighbours = neighbours;
     }
 
@@ -74,20 +85,29 @@ class Patch extends JPanel implements MouseListener {
         }
     }
 
+    public int getFieldX() {
+        return x;
+    }
+
+    public int getFieldY() {
+        return y;
+    }
+
     // return score of this patch in current round
     double getScore() {
         return this.score;
     }
 
     void calculateScore(double alpha) {
-        this.score = Arrays.stream(this.neighbours).filter(Patch::isCooperating).count();
+        this.score = this.neighbours.stream().filter(Patch::isCooperating).count();
         if (!isCooperating()) {
             this.score *= alpha;
         }
     }
 
     @Override
-    public void mouseClicked(MouseEvent e) { }
+    public void mouseClicked(MouseEvent e) {
+    }
 
     @Override
     public void mousePressed(MouseEvent e) {
@@ -96,7 +116,8 @@ class Patch extends JPanel implements MouseListener {
     }
 
     @Override
-    public void mouseReleased(MouseEvent e) {}
+    public void mouseReleased(MouseEvent e) {
+    }
 
     @Override
     public void mouseEntered(MouseEvent e) {
@@ -110,5 +131,6 @@ class Patch extends JPanel implements MouseListener {
     }
 
     @Override
-    public void mouseExited(MouseEvent e) {}
+    public void mouseExited(MouseEvent e) {
+    }
 }
