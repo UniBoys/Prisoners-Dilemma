@@ -33,12 +33,13 @@ class PlayingField extends JPanel {
     private static final Random RANDOM = new Random(SEED);
     // The amount of neighbours a patch can have.
     private static final int NEIGHBOURS_COUNT = 8;
+    private static final long serialVersionUID = 8170149681706008947L;
+    // The timer that is used to time when to step.
+    private final Timer timer;
     // The height for the grid, defaults to 50.
     private int gridHeight = DEFAULT_GRID_SIZE;
     // The width for the grid, defaults to 50.
     private int gridWidth = DEFAULT_GRID_SIZE;
-    // The timer that is used to time when to step.
-    private final Timer timer;
     // The grid of patches as a list.
     private List<Patch> grid;
     // defection award factor
@@ -67,6 +68,7 @@ class PlayingField extends JPanel {
      * calculate and execute one step in the simulation
      */
     void step() {
+        long start = System.currentTimeMillis();
         List<Patch> grid = this.grid.parallelStream().peek(patch -> {
             int x = patch.getFieldX();
             int y = patch.getFieldY();
@@ -86,7 +88,9 @@ class PlayingField extends JPanel {
             return new Patch(patch.getFieldX(), patch.getFieldY(), bestPatch.isCooperating(), patch.isCooperating() != bestPatch.isCooperating());
         }).collect(Collectors.toList());
 
+        long startDraw = System.currentTimeMillis();
         updateDraw();
+        System.out.format("Step time: %s, Draw time: %s", (startDraw - start), System.currentTimeMillis() - startDraw);
     }
 
     /**
@@ -132,7 +136,8 @@ class PlayingField extends JPanel {
     }
 
     /**
-     * Returns the patch with the highest score from the given patches. It chooses a random patch if there are multiple patches with the highest score.
+     * Returns the patch with the highest score from the given patches. It chooses a random patch if there are multiple
+     * patches with the highest score.
      */
     private Patch getBestPatch(List<Patch> patches) {
         // The highest score for the specified patches.
@@ -149,21 +154,25 @@ class PlayingField extends JPanel {
      * Returns the neighbours for the patch on the given x and y value.
      */
     private List<Patch> getNeighbours(int x, int y) {
-        return this.grid.parallelStream().filter(patch -> isNeighbour(x, patch.getFieldX(), gridWidth) && isNeighbour(y, patch.getFieldY(), gridHeight)).collect(Collectors.toList());
+        return this.grid.parallelStream()
+                .filter(patch -> !(x == patch.getFieldX() && y == patch.getFieldY())
+                        && isNeighbour(x, patch.getFieldX(), this.gridWidth)
+                        && isNeighbour(y, patch.getFieldY(), this.gridHeight))
+                .collect(Collectors.toList());
     }
 
     /**
      * Returns true if the given value is within the neighbourhood of the specified index coordinate.
      */
     private boolean isNeighbour(int index, int value, int max) {
-        return (index - 1 + max) % max == value || (index + 1) % max == value;
+        return Math.abs((index + max) % max - value) < 2;
     }
 
     // return grid as 2D array of booleans
     // true for cooperators, false for defectors
     // precondition: grid is rectangular, has non-zero size and elements are non-null
     public boolean[][] getGrid() {
-        boolean[][] resultGrid = new boolean[gridWidth][gridHeight];
+        boolean[][] resultGrid = new boolean[this.gridWidth][this.gridHeight];
         this.grid.forEach(patch -> resultGrid[patch.getFieldX()][patch.getFieldY()] = patch.isCooperating());
         return resultGrid;
     }
@@ -172,12 +181,12 @@ class PlayingField extends JPanel {
     // a patch should become cooperating if the corresponding
     // item in inGrid is true
     public void setGrid(boolean[][] inGrid) {
-        gridWidth = inGrid.length;
-        gridHeight = inGrid[0].length;
+        this.gridWidth = inGrid.length;
+        this.gridHeight = inGrid[0].length;
 
-        this.grid = IntStream.range(0, gridWidth * gridHeight).parallel().mapToObj(i -> {
-            int x = i / gridWidth;
-            int y = i % gridHeight;
+        this.grid = IntStream.range(0, this.gridWidth * this.gridHeight).parallel().mapToObj(i -> {
+            int x = i / this.gridWidth;
+            int y = i % this.gridHeight;
             return new Patch(x, y, inGrid[x][y]);
         }).collect(Collectors.toList());
 
@@ -188,8 +197,7 @@ class PlayingField extends JPanel {
      * Resets tbe grid to random patches.
      */
     void resetGrid() {
-        this.grid = IntStream.range(0, gridWidth * gridHeight).parallel().mapToObj(i -> new Patch(i / gridWidth, i % gridHeight, RANDOM.nextBoolean())).collect(Collectors.toList());
-        ;
+        this.grid = IntStream.range(0, this.gridWidth * this.gridHeight).parallel().mapToObj(i -> new Patch(i / this.gridWidth, i % this.gridHeight, RANDOM.nextBoolean())).collect(Collectors.toList());
         updateDraw();
     }
 
@@ -225,7 +233,7 @@ class PlayingField extends JPanel {
      * Returns the width and the height of the playing field, determined by a calculation, as a Dimension object.
      */
     Dimension getDimension() {
-        return new Dimension(gridWidth * PATCH_SIZE + (gridWidth + 1) * PADDING_SIZE, gridHeight * PATCH_SIZE + (gridHeight + 1) * PADDING_SIZE);
+        return new Dimension(this.gridWidth * PATCH_SIZE + (this.gridWidth + 1) * PADDING_SIZE, this.gridHeight * PATCH_SIZE + (this.gridHeight + 1) * PADDING_SIZE);
     }
 
     /**

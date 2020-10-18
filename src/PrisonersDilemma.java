@@ -22,7 +22,7 @@ class PrisonersDilemma {
     // A correction of 7 pixels to center the playing field correctly.
     private static final int PADDING_ERROR_CORRECTION = 7;
     // The required height, in pixels, for the options panel.
-    private static final int OPTIONS_HEIGHT = 150;
+    private static final int OPTIONS_HEIGHT = 400; // 150
     // The minimal value for alpha.
     private static final double MIN_ALPHA = 0;
     // The maximum value for alpha.
@@ -50,7 +50,7 @@ class PrisonersDilemma {
     }
 
     private JFrame buildFrame() {
-        Dimension dimension = playingField.getDimension();
+        Dimension dimension = this.playingField.getDimension();
         // The total width of the frame, in pixels.
         int frameWidth = (int) dimension.getWidth() + PLAYING_FIELD_PADDING * 2;
         // The total height of the frame, in pixels.
@@ -97,7 +97,7 @@ class PrisonersDilemma {
     private JPanel buildOptionsPanel() {
         // The options panel.
         JPanel options = new JPanel();
-        //options.setSize(PlayingField.PLAYING_FIELD_WIDTH, OPTIONS_HEIGHT);
+        options.setSize(this.playingField.getDimension().width, OPTIONS_HEIGHT);
         options.setLocation(PLAYING_FIELD_PADDING, PLAYING_FIELD_PADDING + (int) this.playingField.getDimension().getHeight());
         options.setLayout(new FlowLayout());
 
