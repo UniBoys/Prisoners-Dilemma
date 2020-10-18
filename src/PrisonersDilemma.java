@@ -22,7 +22,7 @@ class PrisonersDilemma {
     // A correction of 7 pixels to center the playing field correctly.
     private static final int PADDING_ERROR_CORRECTION = 7;
     // The required height, in pixels, for the options panel.
-    private static final int OPTIONS_HEIGHT = 400; // 150
+    private static final int OPTIONS_HEIGHT = 150;
     // The minimal value for alpha.
     private static final double MIN_ALPHA = 0;
     // The maximum value for alpha.
@@ -30,7 +30,7 @@ class PrisonersDilemma {
     // The default value for alpha.
     private static final double DEFAULT_ALPHA = 1;
     // The minimal value for the delay.
-    private static final int MIN_DELAY = 10;
+    private static final int MIN_DELAY = 2;
     // The maximum value for the delay.
     private static final int MAX_DELAY = 2000;
     // The default value for the delay.

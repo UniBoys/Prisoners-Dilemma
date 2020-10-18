@@ -24,6 +24,8 @@ class Patch extends JPanel implements MouseListener {
     private final int y;
     // If this patch is cooperating or not.
     private boolean cooperating;
+    //
+    private boolean oldCooperating;
     // If this patch has changed in the last cycle.
     private boolean hasChanged;
     // The score of this patch.
@@ -43,7 +45,7 @@ class Patch extends JPanel implements MouseListener {
      * This is the full constructor for a patch. It requires the x and y coordinates, the strategy for the patch and if
      * the patch has changed last step.
      */
-    Patch(int x, int y, boolean cooperating, boolean hasChanged) {
+    private Patch(int x, int y, boolean cooperating, boolean hasChanged) {
         this.x = x;
         this.y = y;
         this.cooperating = cooperating;
@@ -71,11 +73,19 @@ class Patch extends JPanel implements MouseListener {
     }
 
     // set strategy to C if isC is true and to D if false
-    private void setCooperating(boolean cooperating) {
+    void setCooperating(boolean cooperating) {
         if (this.cooperating != cooperating) {
             this.hasChanged = true;
         }
         this.cooperating = cooperating;
+    }
+
+    boolean isOldCooperating() {
+        return this.oldCooperating;
+    }
+
+    public void setHasChanged(boolean hasChanged) {
+        this.hasChanged = hasChanged;
     }
 
     // change strategy from C to D and vice versa
@@ -89,7 +99,6 @@ class Patch extends JPanel implements MouseListener {
      */
     void draw() {
         this.setBackground(this.getColor());
-        repaint();
     }
 
     /**
@@ -121,6 +130,7 @@ class Patch extends JPanel implements MouseListener {
         if (!isCooperating()) {
             this.score *= alpha;
         }
+        this.oldCooperating = this.cooperating;
     }
 
     @Override
@@ -131,6 +141,7 @@ class Patch extends JPanel implements MouseListener {
     public void mousePressed(MouseEvent e) {
         toggleStrategy();
         draw();
+        repaint();
     }
 
     @Override

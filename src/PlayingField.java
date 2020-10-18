@@ -22,11 +22,11 @@ import java.util.stream.IntStream;
 class PlayingField extends JPanel {
 
     // The amount of rows and columns the grid starts with.
-    private static final int DEFAULT_GRID_SIZE = 50;
+    private static final int DEFAULT_GRID_SIZE = 200;
     // The width and height, in pixels, of a patch when it is rendered.
-    private static final int PATCH_SIZE = 10;
+    private static final int PATCH_SIZE = 5;
     // The padding around each patch, in pixels, when it is rendered.
-    private static final int PADDING_SIZE = 3;
+    private static final int PADDING_SIZE = 1;
     // seed for random number generator; any number goes
     private static final long SEED = 37L;
     // random number genrator
@@ -68,15 +68,17 @@ class PlayingField extends JPanel {
      * calculate and execute one step in the simulation
      */
     void step() {
-        long start = System.currentTimeMillis();
-        List<Patch> grid = this.grid.parallelStream().peek(patch -> {
-            int x = patch.getFieldX();
-            int y = patch.getFieldY();
-            patch.setNeighbours(getNeighbours(x, y));
+        this.grid.parallelStream().forEach(patch -> {
+            if (patch.getNeighbours() == null) {
+                int x = patch.getFieldX();
+                int y = patch.getFieldY();
+                patch.setNeighbours(getNeighbours(x, y));
+            }
+            patch.setHasChanged(false);
             patch.calculateScore(this.alpha);
-        }).collect(Collectors.toList());
+        });
 
-        this.grid = grid.parallelStream().map(patch -> {
+        this.grid.parallelStream().forEach(patch -> {
             List<Patch> neighbours = patch.getNeighbours();
             List<Patch> patches = new ArrayList<>(neighbours);
             patches.add(patch);
@@ -85,12 +87,11 @@ class PlayingField extends JPanel {
             if (this.selfPreference && bestPatch.getScore() <= patch.getScore()) {
                 bestPatch = patch;
             }
-            return new Patch(patch.getFieldX(), patch.getFieldY(), bestPatch.isCooperating(), patch.isCooperating() != bestPatch.isCooperating());
-        }).collect(Collectors.toList());
+            patch.setCooperating(bestPatch.isOldCooperating());
+        });
 
-        long startDraw = System.currentTimeMillis();
-        updateDraw();
-        System.out.format("Step time: %s, Draw time: %s", (startDraw - start), System.currentTimeMillis() - startDraw);
+        this.grid.parallelStream().forEach(Patch::draw);
+        repaint();
     }
 
     /**
