@@ -5,26 +5,24 @@ import java.awt.event.MouseListener;
 import java.util.List;
 
 /**
- * INCOMPLETE
  * Assignment 6 -- Prisoner's Dilemma -- 2ip90
  * part Patch
  *
- * @author FILL IN
- * @author FILL IN
- * assignment group FILL IN
+ * @author Thijs Aarnoudse 1551159
+ * @author Jort van Driel 1579584
+ * assignment group 52
  * <p>
  * assignment copyright Kees Huizing
  */
 
 class Patch extends JPanel implements MouseListener {
-    private static final long serialVersionUID = -8638626226361215133L;
     // The x coordinate of this patch in the playing field.
     private final int x;
     // The y coordinate of this patch in the playing field.
     private final int y;
     // If this patch is cooperating or not.
     private boolean cooperating;
-    //
+    // The previous version if the patch was cooperating. This old version is used to save the old state of the patch.
     private boolean oldCooperating;
     // If this patch has changed in the last cycle.
     private boolean hasChanged;
@@ -80,11 +78,17 @@ class Patch extends JPanel implements MouseListener {
         this.cooperating = cooperating;
     }
 
+    /**
+     * Returns the old cooperating strategy.
+     */
     boolean isOldCooperating() {
         return this.oldCooperating;
     }
 
-    public void setHasChanged(boolean hasChanged) {
+    /**
+     * Sets if the patch has changed.
+     */
+    void setHasChanged(boolean hasChanged) {
         this.hasChanged = hasChanged;
     }
 
@@ -112,10 +116,16 @@ class Patch extends JPanel implements MouseListener {
         }
     }
 
+    /**
+     * Returns the x coordinate of the patch.
+     */
     int getFieldX() {
         return this.x;
     }
 
+    /**
+     * Returns the y coordinate of the patch.
+     */
     int getFieldY() {
         return this.y;
     }
@@ -125,6 +135,9 @@ class Patch extends JPanel implements MouseListener {
         return this.score;
     }
 
+    /**
+     * Calculates the new score for this patch depending on the given alpha.
+     */
     void calculateScore(double alpha) {
         this.score = this.neighbours.stream().filter(Patch::isCooperating).count();
         if (!isCooperating()) {
@@ -133,10 +146,15 @@ class Patch extends JPanel implements MouseListener {
         this.oldCooperating = this.cooperating;
     }
 
+    /**
+     * Is called when the mouse is pressed on a patch. Is not used as mousePressed is more accurate.
+     */
     @Override
-    public void mouseClicked(MouseEvent e) {
-    }
+    public void mouseClicked(MouseEvent e) { }
 
+    /**
+     * Is called when a mouse button is pressed while the mouse is on a patch.
+     */
     @Override
     public void mousePressed(MouseEvent e) {
         toggleStrategy();
@@ -144,10 +162,16 @@ class Patch extends JPanel implements MouseListener {
         repaint();
     }
 
+    /**
+     * Is called when a mouse button is released while the mouse is on a patch. Is not used as mousePressed is more
+     * accurate.
+     */
     @Override
-    public void mouseReleased(MouseEvent e) {
-    }
+    public void mouseReleased(MouseEvent e) { }
 
+    /**
+     * Is called when the mouse enters a patch.
+     */
     @Override
     public void mouseEntered(MouseEvent e) {
         if (e.isShiftDown()) {
@@ -159,7 +183,9 @@ class Patch extends JPanel implements MouseListener {
         }
     }
 
+    /**
+     * Is called when the mouse exists a patch.
+     */
     @Override
-    public void mouseExited(MouseEvent e) {
-    }
+    public void mouseExited(MouseEvent e) { }
 }

@@ -1,11 +1,10 @@
 /**
- * INCOMPLETE
  * Assignment 6 -- Prisoner's Dilemma -- 2ip90
- * part PlayingField
+ * part Patch
  *
- * @author FILL IN
- * @author FILL IN
- * assignment group FILL IN
+ * @author Thijs Aarnoudse 1551159
+ * @author Jort van Driel 1579584
+ * assignment group 52
  * <p>
  * assignment copyright Kees Huizing
  */
@@ -22,7 +21,7 @@ import java.util.stream.IntStream;
 class PlayingField extends JPanel {
 
     // The amount of rows and columns the grid starts with.
-    private static final int DEFAULT_GRID_SIZE = 200;
+    private static final int DEFAULT_GRID_SIZE = 100;
     // The width and height, in pixels, of a patch when it is rendered.
     private static final int PATCH_SIZE = 5;
     // The padding around each patch, in pixels, when it is rendered.
@@ -31,9 +30,6 @@ class PlayingField extends JPanel {
     private static final long SEED = 37L;
     // random number genrator
     private static final Random RANDOM = new Random(SEED);
-    // The amount of neighbours a patch can have.
-    private static final int NEIGHBOURS_COUNT = 8;
-    private static final long serialVersionUID = 8170149681706008947L;
     // The timer that is used to time when to step.
     private final Timer timer;
     // The height for the grid, defaults to 50.
@@ -65,12 +61,14 @@ class PlayingField extends JPanel {
     }
 
     /**
-     * calculate and execute one step in the simulation
+     * Calculate and execute one step in the simulation.
      */
     void step() {
         this.grid.parallelStream().forEach(patch -> {
             if (patch.getNeighbours() == null) {
+                // The x index for that patch
                 int x = patch.getFieldX();
+                // The y index for that patch
                 int y = patch.getFieldY();
                 patch.setNeighbours(getNeighbours(x, y));
             }
@@ -79,7 +77,9 @@ class PlayingField extends JPanel {
         });
 
         this.grid.parallelStream().forEach(patch -> {
+            // Get the cached neighbours for that patch
             List<Patch> neighbours = patch.getNeighbours();
+            // Create a new arraylist from that to add the current patch to it.
             List<Patch> patches = new ArrayList<>(neighbours);
             patches.add(patch);
             Patch bestPatch = getBestPatch(patches);
@@ -90,43 +90,38 @@ class PlayingField extends JPanel {
             patch.setCooperating(bestPatch.isOldCooperating());
         });
 
+        this.draw();
+    }
+
+    /**
+     * Redraws all of the patches on the playing field.
+     */
+    private void draw() {
         this.grid.parallelStream().forEach(Patch::draw);
         repaint();
     }
 
     /**
-     * Sets size and layout of the playing field and draws each patch.
+     * Rebuilds the playing field and builds all the patches.
      */
-    void draw() {
-        this.setLayout(null);
+    private void build() {
         // The dimension of this playing field panel.
         Dimension dimension = getDimension();
         this.setSize((int) dimension.getWidth(), (int) dimension.getHeight());
-        updateDraw();
-    }
 
-    /**
-     * Draws each patch on the playing field after removing the previous patches.
-     */
-    private void updateDraw() {
-        removeAll();
         this.grid.forEach(patch -> {
+            // The x index for that patch.
             int x = patch.getFieldX();
+            // The y index for that patch.
             int y = patch.getFieldY();
             patch.setSize(PATCH_SIZE, PATCH_SIZE);
             patch.setLocation(PATCH_SIZE * x + PADDING_SIZE * (x + 1), PATCH_SIZE * y + PADDING_SIZE * (y + 1));
             patch.draw();
+            patch.removeMouseListener(patch);
             patch.addMouseListener(patch);
             add(patch);
         });
         repaint();
-    }
-
-    /**
-     * Returns the alpha value for the playing field.
-     */
-    public double getAlpha() {
-        return this.alpha;
     }
 
     /**
@@ -191,15 +186,18 @@ class PlayingField extends JPanel {
             return new Patch(x, y, inGrid[x][y]);
         }).collect(Collectors.toList());
 
-        draw();
+        build();
     }
 
     /**
      * Resets tbe grid to random patches.
      */
     void resetGrid() {
-        this.grid = IntStream.range(0, this.gridWidth * this.gridHeight).parallel().mapToObj(i -> new Patch(i / this.gridWidth, i % this.gridHeight, RANDOM.nextBoolean())).collect(Collectors.toList());
-        updateDraw();
+        this.grid = IntStream.range(0, this.gridWidth * this.gridHeight)
+                .parallel()
+                .mapToObj(i -> new Patch(i / this.gridWidth, i % this.gridHeight, RANDOM.nextBoolean()))
+                .collect(Collectors.toList());
+        build();
     }
 
     /**
@@ -234,14 +232,8 @@ class PlayingField extends JPanel {
      * Returns the width and the height of the playing field, determined by a calculation, as a Dimension object.
      */
     Dimension getDimension() {
-        return new Dimension(this.gridWidth * PATCH_SIZE + (this.gridWidth + 1) * PADDING_SIZE, this.gridHeight * PATCH_SIZE + (this.gridHeight + 1) * PADDING_SIZE);
-    }
-
-    /**
-     * Returns if the patches will have self preference.
-     */
-    public boolean hasSelfPreference() {
-        return this.selfPreference;
+        return new Dimension(this.gridWidth * PATCH_SIZE + (this.gridWidth + 1) * PADDING_SIZE,
+                this.gridHeight * PATCH_SIZE + (this.gridHeight + 1) * PADDING_SIZE);
     }
 
     /**

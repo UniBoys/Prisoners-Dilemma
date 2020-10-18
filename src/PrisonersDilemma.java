@@ -1,11 +1,10 @@
 /**
- * INCOMPLETE
  * Assignment 6 -- Prisoner's Dilemma -- 2ip90
- * main class
+ * part Patch
  *
- * @author FILL IN
- * @author FILL IN
- * assignment group FILL IN
+ * @author Thijs Aarnoudse 1551159
+ * @author Jort van Driel 1579584
+ * assignment group 52
  * <p>
  * assignment copyright Kees Huizing
  */
@@ -35,11 +34,14 @@ class PrisonersDilemma {
     private static final int MAX_DELAY = 2000;
     // The default value for the delay.
     private static final int DEFAULT_DELAY = 1000;
-    // The titel of the frame.
+    // The title of the frame.
     private static final String FRAME_TITLE = "Prisoners Dilemma";
     // The playing field panel.
     private final PlayingField playingField;
 
+    /**
+     * The constructor for the Prisoners Dilemma manager class. Creates the playing field.
+     */
     private PrisonersDilemma() {
         this.playingField = new PlayingField(DEFAULT_ALPHA, DEFAULT_DELAY);
         this.playingField.resetGrid();
@@ -49,7 +51,11 @@ class PrisonersDilemma {
         (new PrisonersDilemma()).buildGUI();
     }
 
+    /**
+     * Builds the frame.
+     */
     private JFrame buildFrame() {
+        // The dimensions of the playing field.
         Dimension dimension = this.playingField.getDimension();
         // The total width of the frame, in pixels.
         int frameWidth = (int) dimension.getWidth() + PLAYING_FIELD_PADDING * 2;
@@ -67,12 +73,21 @@ class PrisonersDilemma {
         return frame;
     }
 
+    /**
+     * Builds and returns a slider using the specified input.
+     */
     private JPanel buildSlider(String name, int defaultValue, int min, int max, Consumer<Integer> onChange) {
         return buildSlider(name, defaultValue, min, max, i -> Integer.toString(i), onChange);
     }
 
-    private JPanel buildSlider(String name, int defaultValue, int min, int max, Function<Integer, String> formatter, Consumer<Integer> onChange) {
+    /**
+     * Builds and returns a slider using the specified input.
+     */
+    private JPanel buildSlider(String name, int defaultValue, int min, int max, Function<Integer, String> formatter,
+                               Consumer<Integer> onChange) {
+        // Combine both the label and slided in a JPanel.
         JPanel options = new JPanel();
+        // The label for the slider.
         JLabel label = new JLabel(name + " = " + formatter.apply(defaultValue));
         options.add(label);
         // The slider.
@@ -94,19 +109,29 @@ class PrisonersDilemma {
         return options;
     }
 
+    /**
+     * Builds and returns the options panel.
+     */
     private JPanel buildOptionsPanel() {
         // The options panel.
         JPanel options = new JPanel();
         options.setSize(this.playingField.getDimension().width, OPTIONS_HEIGHT);
-        options.setLocation(PLAYING_FIELD_PADDING, PLAYING_FIELD_PADDING + (int) this.playingField.getDimension().getHeight());
+        options.setLocation(PLAYING_FIELD_PADDING,
+                PLAYING_FIELD_PADDING + (int) this.playingField.getDimension().getHeight());
         options.setLayout(new FlowLayout());
 
         // The alpha slider
-        JPanel alphaSlider = buildSlider("Alpha", (int) DEFAULT_ALPHA * 10, (int) MIN_ALPHA * 10, (int) MAX_ALPHA * 10, i -> String.format("%.2f", i / 10.0), i -> this.playingField.setAlpha(i / 10.0));
+        JPanel alphaSlider = buildSlider(
+                "Alpha",
+                (int) DEFAULT_ALPHA * 10,
+                (int) MIN_ALPHA * 10,
+                (int) MAX_ALPHA * 10, i -> String.format("%.2f", i / 10.0),
+                i -> this.playingField.setAlpha(i / 10.0));
         options.add(alphaSlider);
 
         // The delay slider
-        JPanel delaySlider = buildSlider("Delay/step (ms)", DEFAULT_DELAY, MIN_DELAY, MAX_DELAY, this.playingField::setDelay);
+        JPanel delaySlider = buildSlider(
+                "Delay/step (ms)", DEFAULT_DELAY, MIN_DELAY, MAX_DELAY, this.playingField::setDelay);
         options.add(delaySlider);
 
         // The label for the self preference checkbox.
@@ -137,15 +162,22 @@ class PrisonersDilemma {
         return options;
     }
 
+    /**
+     * Builds and returns the playing field.
+     */
     private JPanel buildPlayingField() {
-        this.playingField.setLocation(PLAYING_FIELD_PADDING - PADDING_ERROR_CORRECTION, PLAYING_FIELD_PADDING / 2);
-        this.playingField.draw();
-
+        this.playingField.setLocation(PLAYING_FIELD_PADDING - PADDING_ERROR_CORRECTION,
+                PLAYING_FIELD_PADDING / 2);
+        this.playingField.setLayout(null);
         return this.playingField;
     }
 
+    /**
+     * Builds the full GUI of the Prisoners Dilemma program.
+     */
     private void buildGUI() {
         SwingUtilities.invokeLater(() -> {
+            // The frame for this program.
             JFrame frame = buildFrame();
             frame.add(buildPlayingField());
             frame.add(buildOptionsPanel());
